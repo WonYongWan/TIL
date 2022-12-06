@@ -1,7 +1,8 @@
 [단락회로 평가](#단락회로-평가)<br/>
 [조건문 Upgrade](#조건문-upgrade)<br/>
 [비 구조화 할당 or 구조 분해 할당](#비-구조화-할당-or-구조-분해-할당)<br/>
-[ Spread Operator (전개 연산자)](#spread-operator-전개-연산자)
+[Spread Operator (전개 연산자)](#spread-operator-전개-연산자)<br/>
+[동기 & 비동기](#동기--비동기)<br/>
 
 # 단락회로 평가
 ### 단락회로 평가란 논리연산자의 왼쪽에서 오른쪽으로 연산하게 되는 연산순서를 이용한 문법이다.
@@ -282,4 +283,130 @@ const topingCookies = ["바나나쿠키", "블루베리쿠키", "딸기쿠키", 
 
 const allCookies = [...noTopingCookies, "함정쿠키", ...topingCookies];
 console.log(allCookies); // ["촉촉한쿠키", "안촉촉한쿠키", "함정쿠키", "바나나쿠키", "블루베리쿠키", "딸기쿠키", "초코칩쿠키"]
+```
+<br/>
+
+# 동기 & 비동기
+### 자바스크립트에서는 코드가 작성된 순서대로 작업을 처리하며 그 연산과정을 수행하는 주체를 쓰레드라고 한다. 그리고 자바스크립트에서 순서대로 작업을 처리하는 과정. 즉 이전 작업이 진행 중 일 때는 다음 작업을 수행하지 않고 기다리는 방식을 동기적 방식이라고 부른다.
+<br/>
+<center><img src="./images/single%20thread_1.png" width="100%"/></center>
+<br/>
+
+### 동기적 처리의 단점은 하나의 작업이 너무 오래 걸리게 될 시, 그 오래 걸리는 하나의 작업이 종료되기 전 까지 모든 작업이 동작하지 않기 때문에 전반적인 흐름이 느려진다.
+<br/>
+<center><img src="./images/single%20thread_2.png" width="100%"/></center>
+<br/>
+
+### 이를 해결하기 위해서는 쓰레드를 여러 개 사용하는 방식인 멀티 쓰레드(MultiThread)가 있다. 오래 걸리는 작업들을 각각의 쓰레드에게 분할해서 실행시키고 나중에 결과 값을 모아보면 해결할 수 있다.
+<br/>
+<center><img src="./images/single%20thread_3.png" width="100%"/></center>
+<br/>
+
+### 하지만 안타깝게도 자바스크립트는 하나의 쓰레드만 사용하는 싱글 쓰레드로 동작한다.
+<br/>
+<center><img src="./images/single%20thread_4.png" width="100%"/></center>
+<br/>
+
+### 싱글쓰레드 환경에서 동기적 작업의 단점을 극복하기 위해서는 여러개의 작업을 동시에 실행시키는 즉, 먼저 작성된 코드의 결과를 기다리지 않고 다음 코드를 바로 실행시키는 비동기 작업이 있다. 또한 하나의 작업이 쓰레드를 점유하지 않는 즉, 하나의 작업을 수행할때 쓰레드가 다른 작업을 하지 못하도록 블로킹 하지 않는 방식을 논 블로킹 방식이라고 한다.
+<br/>
+<center><img src="./images/single%20thread_5.png" width="100%"/></center>
+<br/>
+
+### 비동식 방식으로 작업을 했을때 작업들이 정상적으로 끝났는지 확인하기 위해서는 A, B, C 함수가 있다고 가정하고 각 함수에 작업이 끝나면 실행할 콜백함수를 붙여주면 된다.
+<br/>
+<center><img src="./images/single%20thread_6.png" width="100%"/></center>
+<br/>
+
+```js
+// 동기 & 비동기
+
+// 예제 1-1(동기적 방식)
+// taskA함수를 호출하게 되면 아래와 같이 "A 작업 끝" 이후에 "코드 끝"이 실행된다.
+function taskA() {
+  console.log("A 작업 끝");
+}
+taskA();
+console.log("코드 끝");
+// A 작업 끝
+// 코드 끝
+===============================================================
+// 예제 2-1(비동기적 방식)
+// 내장 비동기 함수인 setTimeout을 사용해본다. setTimeout의 첫번째 파라미터는 콜백함수 두번째는 딜레이 타임을 넣을 수 있다. 단위는 밀리세컨드로 1000ms === 1s이다.
+// 아래와 같이 실행하면 2초 뒤에 "A TASK END"가 실행 되므로 "코드 끝"이 먼저 실행된다.
+function taskA() {
+  setTimeout(() => {
+    console.log("A TASK END");
+  }, 2000);
+}
+taskA();
+console.log("코드 끝");
+// 코드 끝
+// A TASK END
+===============================================================
+// 예제 2-2(비동기적 방식)
+// 아래와 같이 a, b파라미터를 받아와 더하여 출력하는데 3초 이후에 실행되므로 "코드 끝" 이후에 5가 실행된다.
+function taskA(a, b) {
+  setTimeout(() => {
+    const res = a + b;
+    console.log(res);
+  }, 3000);
+}
+taskA(2, 3);
+console.log("코드 끝");
+// 코드 끝
+// 5
+===============================================================
+// 예제 2-3(비동기적 방식)
+// 지역 상수인 res를 밖으로 꺼내 사용하기 위해서는 콜백함수를 사용하면 된다. 
+// res 매개변수를 가진 콜백함수를 callBack 매개변수에 할당하고 setTimeout() 내부에서 callBack함수를 호출하는데 인수로는 console.log("A TASK END", 5) 를 담고 3초 뒤에 출력된다.
+function taskA(a, b, callBack) {
+  setTimeout(() => {
+    const res = a + b;
+    callBack(res);
+  }, 3000);
+}
+taskA(2, 3, (res) => {
+  console.log("A TASK END", res);
+});
+console.log("코드 끝");
+// 코드 끝
+// A TASK END 5
+===============================================================
+// 예제 2-4(비동기적 방식)
+// 2-3예제를 업그레이드해서 taskB와 taskC까지 출력하는 예제다. "코드 끝" -> taskB -> taskC -> taskA 순으로 출력되는 것을 확인할 수 있다.
+function taskA(a, b, callBack) {
+  setTimeout(() => {
+    const res = a + b;
+    callBack(res);
+  }, 3000);
+}
+
+function taskB(a, callBack) {
+  setTimeout(() => {
+    const res = a * 2;
+    callBack(res);
+  }, 1000);
+}
+
+function taskC(a, callBack) {
+  setTimeout(() => {
+    const res = a * -1;
+    callBack(res);
+  }, 2000);
+}
+
+taskA(2, 3, (res) => {
+  console.log("A TASK END", res);
+});
+taskB(7, (res) => {
+  console.log("B TASK RESULT", res);
+});
+taskC(14, (res) => {
+  console.log("C TASK RESULT", res);
+});
+console.log("코드 끝");
+//코드 끝 
+//B TASK RESULT 14
+//C TASK RESULT -14
+//A TASK END 5
 ```
