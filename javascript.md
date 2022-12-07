@@ -410,3 +410,115 @@ console.log("코드 끝");
 //C TASK RESULT -14
 //A TASK END 5
 ```
+<br/>
+
+### 자바스크립트 엔진이 어떻게 동기적인 코드와 비동기적인 코드를 구분해서 사용하는지 알아보자. 자바스크립트 엔진은 Heap 그리고 Call Stack 두 가지 구성요소로 이루어져 있다. Heap는 변수나 상수들에 사용되는 메모리를 저장하는 영역이고 *Call Stack은 우리가 작성한 코드의 실행에 따라서 호출 스택을 쌓는 영역이다.
+<br/>
+<center><img src="./images/single%20thread_7.png" width="100%"/></center>
+<br/>
+
+### 아래 코드의 실행 흐름을 통해 자바스크립트 엔진이 구동하는 방식을 알아보자. 자바스크립트의 코드의 실행이 시작되면 아래 Call Stack에 보이는 것처럼 자바스크립트 코드들의 가장 최상위 문맥인 Main Context가 Call Stack에 가장 먼저 들어오게 된다. 그렇기 때문에 Main Context가 Call Stack에 들어오는 순간이 바로 프로그램 실행 순간인 것이고 이 Main Context가 Call Stack에서 나가는 순간은 바로 프로그램이 종료 되는 순간이다.
+<br/>
+<center><img src="./images/single%20thread_8.png" width="100%"/></center>
+<br/>
+
+### 그리고 나서 아래처럼 바로 첫번째 코드가 실행된다. 근데 function one과 two와 three는 함수 생성이기 때문에 생성만 하고 넘어간다고 생각하면 된다. 그래서 실질적으로 실행되는 부분은 console.log(three()); 가 된다. 그리고 console.log 안에서 three()라는 함수를 실행하게 되므로 이 three() 함수가 Call Stack에 추가되게 된다. 왜냐하면 three()라는 함수를 실행해야 결과 값을 리턴 받아서 콘솔에 찍어서 사용할 수 있기 때문이다.
+<br/>
+<center><img src="./images/single%20thread_9.png" width="100%"/></center>
+<br/>
+
+### 그 다음에는 three() 함수를 실행시켜서 결과 값을 받아야 하기 때문에 결과 값에 있는 two() 함수도 실행 시켜야 한다. 
+<br/>
+<center><img src="./images/single%20thread_10.png" width="100%"/></center>
+<br/>
+
+### 그리고 two() 함수의 결과 값을 받으려면 one() 함수도 실행시켜야 하므로 Call Stack에는 one() 함수까지 쌓이게 된다.
+<br/>
+<center><img src="./images/single%20thread_11.png" width="100%"/></center>
+<br/>
+
+### one() 함수까지 들어가게 되면 결과 값 1을 리턴하고 종료되는 것을 확인할 수 있다. Call Stack에서는 종료되는 함수는 바로바로 제거 된다. Call Stack에서 사용되는 스택이라는 구조는 가장 나중에 들어온 것부터 가장 먼저 제거 되는 구조다. 그래서 가장 마지막에 호출된 one()이라는 함수가 가장 먼저 종료되고 제거되는 것을 확인할 수 있다. 
+<br/>
+<center><img src="./images/single%20thread_12.png" width="100%"/></center>
+<br/>
+
+### Call Stack에서 one() 함수가 제거된 이후에 two() 함수가 one() + 1 즉, 2를 리턴하고 종료되어 Call Stack에서 제거되는 것을 확인할 수 있다.
+<br/>
+<center><img src="./images/single%20thread_13.png" width="100%"/></center>
+<br/>
+
+### 그리고 three() 함수에서 two() + 1 즉, 3을 리턴하고 종료되어 Call Stack에서 제거되는 것을 확인 할 수 있다.
+<br/>
+<center><img src="./images/single%20thread_14.png" width="100%"/></center>
+<br/>
+
+### 그리고 three() 함수의 반환 값인 3이 console.log에 의해 출력되고 3 역시 제거 된다.
+<br/>
+<center><img src="./images/single%20thread_15.png" width="100%"/></center>
+<br/>
+
+### 그리고 console.log까지 끝났으면 더 이상 실행할 코드가 없기 때문에 Call Stack에서 Main Context까지 제거하게 되고 Main Context가 제거 되는 순간이 프로그램이 종료되는 순간이다. 또한 코드를 직접 실해하는 주체를 쓰레드라고 하는데 이 쓰레드는 하나의 Call Stack만 담당하고 Call Stack의 작동 방식대로 명령을 처리한다고 보면 되는데 자바스크립트 엔진은 Call Stack이 딱 하나 있기 때문에 그래서 자바스크립트가 싱글 쓰레드로 동작한다고 생각하면 된다.
+<br/>
+<center><img src="./images/single%20thread_16.png" width="100%"/></center>
+<br/>
+
+### 자바스크립트의 비동기 작업을 위해서는 JS Eegine외에 Web APIs, Callback Queue, Event Loop들의 추가 구성 요소가 필요하다. 이 세가지 구성 요소들은 자바스크립트 엔진과 웹 브라우저간의 상호 작용 등등을 처리하기 위해 존재하는데 그 중 가장 대표적인 상호작용을 비동기 처리다. 아래 코드를 해석하자면
+0. asyncAdd()가 실행된다. 그리고 파라미터로 1, 3, 콜백함수를 전달한다. ** Call Stack의 Main Context 다음에 추가
+
+1. asyncAdd() 함수 내부에 접근했더니 setTimeout() 비동기 함수를 호출하고 있고 setTimeout() 함수는 cb()함수를 포함하고 있다. 자바스크립트 엔진은 이런 비동기로 수행되는 함수를 Web APIs로 넘긴다. 그리고 Web APIs로 넘겨진 setTimeout()함수는 실행을 멈추는게 아니라 실행되며 3초를 기다린다.
+
+2. setTimeout()함수가 Web APIs로 넘어가 Call Stack에 없기 때문에 Call Stack에서는 바로 다음 코드를 수행할 수 있게 되고 asyncAdd()함수를 끝낼고 제거할 수 있게 된다.
+
+3. asyncAdd()함수가 종료 및 제거 되고 setTimeout()함수의 3초가 끝났다면 Web APIs에 있는 setTimeout()함수는 제거가 되고 수행을 해야 되는 cb()함수는 Callback Queue로 옮겨지게 된다.
+
+4. Callback Queue로 옮겨졌다면 Event Loop를 통해 다시 Call Stack로 옮겨질 수 있게 되는데 (실질적 수행) Event Loop는 Call Stack의 Main Context를 제외한 다른 함수가 남아있지 않은지 계속 확인을 하고 아무것도 남아있지 않다면 cb()함수를 수행할 수 있다 판단하고 Call Stack으로 넘기게 된다.
+
+5. Call Stack으로 넘겨진 cb()함수가 실행되고 종료된 다음 제거되면 더 이상 실행될 코드가 없기 때문에 Main Context가 제거되고 프로그램은 종료하게 된다.
+<br/>
+<center><img src="./images/single%20thread_17.png" width="100%"/></center>
+
+```js
+function taskA(a, b, callBack) {
+  // 2. 파라미터 callBack 함수는 setTimeout안에서 호출되므로 Web APIs로 넘어가고 3초 뒤에 callBack(res)가 Callback Queue로 옮겨진다.
+  setTimeout(() => {
+    const res = a + b;
+    // 3. Event Loop가 Call Stack에 Main Context를 제외한 수행할 함수가 없다면 callBack(res)를 Call Stack으로 옮기고 Call Stack는 callBack(res)를 실행하고 종료 및 제거한다.
+    callBack(res);
+  }, 3000);
+}
+
+function taskB(a, callBack) {
+  // 2, 3번 같은 과정
+  setTimeout(() => {
+    const res = a * 2;
+    callBack(res);
+  }, 1000);
+}
+
+function taskC(a, callBack) {
+  // 2, 3번 같은 과정
+  setTimeout(() => {
+    const res = a * -1;
+    callBack(res);
+  }, 2000);
+}
+
+// 1. taskA를 호출할 때 파라미터로 4, 5, 콜백함수를 전달한다.
+taskA(4, 5, (a_res) => {
+  console.log("A RESULT : ", a_res);
+  // 4. taskA() 호출 내부에 taskB() 함수를 호출하고 taskB는 파라미터로 a_res와 콜백함수를 전달한다. 
+  taskB(a_res, (b_res) => {
+    console.log("B RESULT : ", b_res);
+    // 4번과 같은 과정
+    taskC(b_res, (c_res) => {
+      console.log("C RESULT : ", c_res);
+    });
+  });
+});
+
+console.log("코드 끝");
+// 코드 끝 
+// A RESULT : 9
+// B RESULT : 18
+// C RESULT : -18
+```
