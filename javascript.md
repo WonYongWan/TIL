@@ -3,6 +3,9 @@
 [비 구조화 할당 or 구조 분해 할당](#비-구조화-할당-or-구조-분해-할당)<br/>
 [Spread Operator (전개 연산자)](#spread-operator-전개-연산자)<br/>
 [동기 & 비동기](#동기--비동기)<br/>
+[Promise - 콜백지옥에서 탈출하기](#promise---콜백지옥에서-탈출하기)<br/>
+[async & await - 직관적인 비 동기 처리 코드 작성하기](#async--await---직관적인-비-동기-처리-코드-작성하기)<br/>
+[API 호출하기](#api--fetch)<br/>
 
 # 단락회로 평가
 ### 단락회로 평가란 논리연산자의 왼쪽에서 오른쪽으로 연산하게 되는 연산순서를 이용한 문법이다.
@@ -522,3 +525,335 @@ console.log("코드 끝");
 // B RESULT : 18
 // C RESULT : -18
 ```
+<br/>
+
+# Promise - 콜백지옥에서 탈출하기
+### 콜백지옥이란 아래처럼 연속되는 비동기 처리의 결과 값을 사용하기 위해서 콜백이 계속 깊어지는 현상을 말한다. 그리고 이런 상황을 해결하기 위해서 Promise 객체를 사용할 수 있다.
+<br/>
+<center><img src="./images/promise_1.png" width="100%"/></center>
+<br/>
+
+### 비동기 작업이 가질 수 있는 3가지 형태에 대해 알아보면 
+1. Pending(대기 상태 - 비동기 작업이 진행 중이거나 작업이 시작할 수도 없는 문제가 발생했음을 의미) 
+2. Fulfilled(성공 - 비동기 작업이 의도한대로 정상적 완료가 된 상태) // Pending 상태에서 Fulfilled 되는 과정은 **resolve
+3. Rejected(실패 - 비동기 작업이 어떤 이유로 인해 실패 했음을 의미) // Pending 상태에서 Rejected 되는 과정은 **reject
+<br/>(비동기 작업은 한번 성공하거나 실패하면 그대로 작업이 끝난다.)
+<br/>
+<center><img src="./images/promise_2.png" width="100%"/></center>
+<br/>
+
+```js
+// 예제 1-1 (callBack)
+// 아래 예제는 콜백함수를 사용해서 number값이 숫자형인지 판단하고 맞을 경우 resolve를 호출하고 아닐 경우 reject를 호출하는 예제다.
+function isPositive(number, resolve, reject) {
+  setTimeout(() => {
+    if (typeof number === "number") {
+      resolve(number >= 0 ? "양수" : "음수");
+    } else {
+      reject("숫자형이 아닙니다");
+    }
+  }, 2000);
+}
+
+isPositive(
+  10,
+  (res) => {
+    console.log("성공적으로 수행됨 :", res);
+  },
+  (err) => {
+    console.log("실패함 :", err);
+  }
+);
+// 성공적으로 수행됨 : 양수
+===============================================================
+// 예제 1-2 (Promise)
+// 아래 예제는 Promise를 통해 1-1과 같은 결과 값을 출력하는 예제다.
+function isPositive(number) {
+  const executor = (resolve, reject) => {
+    setTimeout(() => {
+      if (typeof number === "number") {
+        resolve(number >= 0 ? "양수" : "음수");
+      } else {
+        reject("숫자형이 아닙니다");
+      }
+    }, 2000);
+  };
+
+  const asyncTask = new Promise(executor);
+  // isPositive의 결과 값이 Promise 객체로 res에 넘어간다
+  return asyncTask;
+}
+// res에는 
+const res = isPositive(101);
+
+res
+  // res의 값이 resolve일때
+  .then((res) => {
+    console.log("작업 성공 : ", res);
+  })
+  // res의 값이 reject일때
+  .catch((err) => {
+    console.log("작업 실패 : ", err);
+  });
+===============================================================
+// 예제 2-1 (callBack)
+function taskA(a, b, callBack) {
+  setTimeout(() => {
+    const res = a + b;
+    callBack(res);
+  }, 3000);
+}
+
+function taskB(a, callBack) {
+  setTimeout(() => {
+    const res = a * 2;
+    callBack(res);
+  }, 1000);
+}
+
+function taskC(a, callBack) {
+  setTimeout(() => {
+    const res = a * -1;
+    callBack(res);
+  }, 2000);
+}
+
+taskA(4, 5, (a_res) => {
+  console.log("A RESULT : ", a_res);
+  taskB(a_res, (b_res) => {
+    console.log("B RESULT : ", b_res);
+    taskC(b_res, (c_res) => {
+      console.log("C RESULT : ", c_res);
+    });
+  });
+});
+
+console.log("코드 끝");
+// 코드 끝 
+// A RESULT : 9
+// B RESULT : 18
+// C RESULT : -18
+===============================================================
+// 예제 2-2 (Promise)
+// 아래 예제는 2-1의 콜백함수 대신 Promise를 사용한 예제다
+function taskA(a, b) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const res = a + b;
+      resolve(res);
+    }, 3000);
+  });
+}
+
+function taskB(a) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const res = a * 2;
+      resolve(res);
+    }, 1000);
+  });
+}
+
+function taskC(a) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const res = a * -1;
+      resolve(res);
+    }, 2000);
+  });
+}
+// 예제 2-2 result line
+-------------
+// 콜백지옥과 똑같은 방식으로 사용했기 때문에 X
+// taskA(5, 1).then((a_res) => {
+//   console.log("A RESULT : ", a_res);
+//   taskB(a_res).then((b_res) => {
+//     console.log("B RESULT : ", b_res);
+//     taskC(b_res).then((c_res) => {
+//       console.log("C RESULT : ", c_res);
+//     });
+//   });
+// });
+-------------
+// 아래처럼 then메서드를 계속 이어 붙이는 것을 then체이닝이라고 한다.
+// taskA에는 Promise객체를 전달받고 Promise의 메서드인 then을 통해 taskA의 결과 값 전달한다.
+taskA(5, 1)
+  .then((a_res) => {
+    console.log("A RESULT : ", a_res);
+    // taskB의 Promise객체를 반환
+    return taskB(a_res);
+    // 반환된 taskB의 Promise 결과 값을 then을 통해 전달
+  })
+  .then((b_res) => {
+    console.log("B RESULT : ", b_res);
+    // taskC의 Promise객체를 반환
+    return taskC(b_res);
+    // 반환된 taskC의 Promise 결과 값을 then을 통해 전달
+  })
+  .then((c_res) => {
+    console.log("C RESULT : ", c_res);
+  });
+// A RESULT : 6
+// B RESULT : 12
+// C RESULT : -12
+-------------
+// 아래와 같이 비동기 처리 사이에 다른 코드도 넣을 수 있다.
+// 이처럼 Promise 객체를 통해 가독성 있고 깔끔한 비동기 처리를 할 수 있다.
+const bPromiseResult = taskA(5, 1).then((a_res) => {
+  console.log("A RESULT : ", a_res);
+  return taskB(a_res);
+});
+
+console.log("11111111");
+console.log("11111111");
+console.log("11111111");
+console.log("11111111");
+
+bPromiseResult
+  .then((b_res) => {
+    console.log("B RESULT : ", b_res);
+    // taskC의 Promise객체를 반환
+    return taskC(b_res);
+    // 반환된 taskC의 Promise 결과 값을 then을 통해 전달
+  })
+  .then((c_res) => {
+    console.log("C RESULT : ", c_res);
+  });
+// 11111111
+// 11111111
+// 11111111
+// 11111111
+// A RESULT : 6
+// B RESULT : 12
+// C RESULT : -12
+```
+<br/>
+
+# async & await - 직관적인 비 동기 처리 코드 작성하기
+### Promise 객체보다 더 쉽고 가독성 있게 비 동기 처리를 할 수 있는 async & await에 대해 알아보자.
+<br/>
+
+```js
+// 예제 1-1 (async)
+// async를 앞에 붙힌 helloAsync를 출력하게 되면 Promis {<pending>} 객체가 그대로 출력되는 것을 확인 할 수 있다. 즉 함수 앞에 async를 붙히게 되면 자동으로 Promise객체를 리턴하는 비동기 처리 함수가 된다.
+function hello() {
+  return "hello";
+}
+
+async function helloAsync() {
+  return "hello Async";
+}
+// 예제 1-1 result line
+-------------
+console.log(hello());
+console.log(helloAsync());
+// hello
+// Promise {<pending>}
+-------------
+// helloAsync 함수가 Promise 객체라는 것은 then 메서드를 사용할 수 있다는 뜻이기도 하다. 
+helloAsync().then((res) => {
+  console.log(res); // hello Async
+});
+
+// 예제 2-1
+// 아래는 3초 뒤에 hello Async를 출력하는 코드다.
+function delay(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function helloAsync() {
+  return delay(3000).then(() => {
+    return "Hello Async";
+  });
+}
+
+helloAsync().then((res) => {
+  console.log(res); // hello Async(3초 뒤에)
+});
+
+// 예제 2-2 (await)
+// 예제 2-1의 코드는 3초 뒤에 동작하기 위한 코드로는 너무 거창하다.
+// ***await 키워드는 async가 붙어 있는 함수 내부에서만 사용할 수 있다. 
+function delay(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function helloAsync() {
+  // await 키워드를 비동기 함수 앞에 붙이게 되면 비동기 함수를 마치 동기적인 것처럼 작동하게 할 수 있다. (delay함수가 수행을 끝내기 전까지 다음 코드를 실행하지 않는다.)
+  await delay(3000);
+  return "hello Async";
+}
+
+helloAsync().then((res) => {
+  console.log(res); // hello Async(3초 뒤에)
+});
+
+// 예제 2-3 (await)
+// 예제 2-2 변형
+function delay(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function helloAsync() {
+  await delay(3000);
+  return "hello Async";
+}
+
+async function main() {
+  const res = await helloAsync();
+  console.log(res);
+}
+
+main(); // hello Async(3초 뒤에)
+```
+<br/>
+
+# API & fetch
+### API(application programming interface 애플리케이션 프로그래밍 인터페이스, 응용 프로그램 프로그래밍 인터페이스)는 컴퓨터나 컴퓨터 프로그램 사이의 연결이다. API를 호출 한다는 것은 다른 프로그램한테 데이터를 받기 위해 말을 건다 라고 생각하면 된다. 다시 말하면 어떤 데이터를 받기 위해서, 변환 받기 위한 목적을 가지고 있다.
+### 그리고 API 호출은 함수의 호출과 유사하지만 가장 큰 차이점은 요청 데이터의 응답을 인터넷 연결 속도, 서버의 부하 상태 등등으로 인해 언제 받을지 확실히 알 수 없다는 것이다. 응답에 실패할 수 도 있다. 그래서 Promise 객체에 rejected 상태가 있는 것이기도 하다. 결국 API는 Promise 객체를 사용하여 비동기 호출을 해야 한다.
+<br/>
+<center><img src="./images/api_1.png" width="100%"/></center>
+<br/>
+아래 사이트는 개발자들을 위한 무료로 API 호출에 대한 더미 데이터를 응답해 주는 서비스를 하고 있다. Resources에서 아무 링크나 들어가면 json 형태의 데이터를 확인할 수 있다. 그리고 무료로 API를 제공하는 것을 opne API라고 부른다.
+
+[JSONPlaceholder](https://jsonplaceholder.typicode.com/)
+<br/>
+<center><img src="./images/api_2.png" width="100%"/></center>
+<br/>
+어떤 API에 데이터를 요청하기 위해서는 그 API의 주소를 먼저 알아야 한다.
+
+```js
+// 예제 1-1
+// fetch는 자바스크립트에서 API호출을 할 수 있도록 도와주는 내장함수이며 Promise객체를 반환한다.
+// 결과값이 성공했다면 resolve가 호출 되는데 res에 값을 담아서 전달한다.
+let response = fetch("https://jsonplaceholder.typicode.com/posts").then(
+  (res) => {
+    console.log(res);
+  }
+);
+
+// 예제 1-2
+async function getData() {
+  let rawResponse = await fetch("https://jsonplaceholder.typicode.com/posts");
+  let jsonResponse = await rawResponse.json();
+  console.log(jsonResponse);
+}
+getData();
+```
+예제 1-1 결과 값
+- 아래와 같이 fetch를 통해서 API를 호출하게 되면 그 API의 결과 값을 그대로 반환 하는게 아니라 API 성공 객체 자체를 반환하기 때문에 Response객체 자체를 반환한 것을 확인할 수 있다. 예를 들어 편지를 받았다면 아직 편지의 내용이 아닌 포장 봉투를 확인한 것과 같다고 볼 수 있다.
+<br/>
+<center><img src="./images/api_3.png" width="100%"/></center>
+<br/>
+
+예제 1-2 결과 값
+- 편지의 내용을 확인하고 싶다면 예제 1-2처럼 코드를 작성하면 된다.
+<br/>
+<center><img src="./images/api_4.png" width="100%"/></center>
+<br/>
