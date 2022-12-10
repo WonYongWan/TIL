@@ -292,32 +292,32 @@ console.log(allCookies); // ["촉촉한쿠키", "안촉촉한쿠키", "함정쿠
 # 동기 & 비동기
 ### 자바스크립트에서는 코드가 작성된 순서대로 작업을 처리하며 그 연산과정을 수행하는 주체를 쓰레드라고 한다. 그리고 자바스크립트에서 순서대로 작업을 처리하는 과정. 즉 이전 작업이 진행 중 일 때는 다음 작업을 수행하지 않고 기다리는 방식을 동기적 방식이라고 부른다.
 <br/>
-<center><img src="./images/single%20thread_1.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/single%20thread_1.png" width="100%"/></center>
 <br/>
 
 ### 동기적 처리의 단점은 하나의 작업이 너무 오래 걸리게 될 시, 그 오래 걸리는 하나의 작업이 종료되기 전 까지 모든 작업이 동작하지 않기 때문에 전반적인 흐름이 느려진다.
 <br/>
-<center><img src="./images/single%20thread_2.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/single%20thread_2.png" width="100%"/></center>
 <br/>
 
 ### 이를 해결하기 위해서는 쓰레드를 여러 개 사용하는 방식인 멀티 쓰레드(MultiThread)가 있다. 오래 걸리는 작업들을 각각의 쓰레드에게 분할해서 실행시키고 나중에 결과 값을 모아보면 해결할 수 있다.
 <br/>
-<center><img src="./images/single%20thread_3.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/single%20thread_3.png" width="100%"/></center>
 <br/>
 
 ### 하지만 안타깝게도 자바스크립트는 하나의 쓰레드만 사용하는 싱글 쓰레드로 동작한다.
 <br/>
-<center><img src="./images/single%20thread_4.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/single%20thread_4.png" width="100%"/></center>
 <br/>
 
 ### 싱글쓰레드 환경에서 동기적 작업의 단점을 극복하기 위해서는 여러개의 작업을 동시에 실행시키는 즉, 먼저 작성된 코드의 결과를 기다리지 않고 다음 코드를 바로 실행시키는 비동기 작업이 있다. 또한 하나의 작업이 쓰레드를 점유하지 않는 즉, 하나의 작업을 수행할때 쓰레드가 다른 작업을 하지 못하도록 블로킹 하지 않는 방식을 논 블로킹 방식이라고 한다.
 <br/>
-<center><img src="./images/single%20thread_5.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/single%20thread_5.png" width="100%"/></center>
 <br/>
 
 ### 비동식 방식으로 작업을 했을때 작업들이 정상적으로 끝났는지 확인하기 위해서는 A, B, C 함수가 있다고 가정하고 각 함수에 작업이 끝나면 실행할 콜백함수를 붙여주면 된다.
 <br/>
-<center><img src="./images/single%20thread_6.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/single%20thread_6.png" width="100%"/></center>
 <br/>
 
 ```js
@@ -417,52 +417,52 @@ console.log("코드 끝");
 
 ### 자바스크립트 엔진이 어떻게 동기적인 코드와 비동기적인 코드를 구분해서 사용하는지 알아보자. 자바스크립트 엔진은 Heap 그리고 Call Stack 두 가지 구성요소로 이루어져 있다. Heap는 변수나 상수들에 사용되는 메모리를 저장하는 영역이고 *Call Stack은 우리가 작성한 코드의 실행에 따라서 호출 스택을 쌓는 영역이다.
 <br/>
-<center><img src="./images/single%20thread_7.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/single%20thread_7.png" width="100%"/></center>
 <br/>
 
 ### 아래 코드의 실행 흐름을 통해 자바스크립트 엔진이 구동하는 방식을 알아보자. 자바스크립트의 코드의 실행이 시작되면 아래 Call Stack에 보이는 것처럼 자바스크립트 코드들의 가장 최상위 문맥인 Main Context가 Call Stack에 가장 먼저 들어오게 된다. 그렇기 때문에 Main Context가 Call Stack에 들어오는 순간이 바로 프로그램 실행 순간인 것이고 이 Main Context가 Call Stack에서 나가는 순간은 바로 프로그램이 종료 되는 순간이다.
 <br/>
-<center><img src="./images/single%20thread_8.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/single%20thread_8.png" width="100%"/></center>
 <br/>
 
 ### 그리고 나서 아래처럼 바로 첫번째 코드가 실행된다. 근데 function one과 two와 three는 함수 생성이기 때문에 생성만 하고 넘어간다고 생각하면 된다. 그래서 실질적으로 실행되는 부분은 console.log(three()); 가 된다. 그리고 console.log 안에서 three()라는 함수를 실행하게 되므로 이 three() 함수가 Call Stack에 추가되게 된다. 왜냐하면 three()라는 함수를 실행해야 결과 값을 리턴 받아서 콘솔에 찍어서 사용할 수 있기 때문이다.
 <br/>
-<center><img src="./images/single%20thread_9.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/single%20thread_9.png" width="100%"/></center>
 <br/>
 
 ### 그 다음에는 three() 함수를 실행시켜서 결과 값을 받아야 하기 때문에 결과 값에 있는 two() 함수도 실행 시켜야 한다. 
 <br/>
-<center><img src="./images/single%20thread_10.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/single%20thread_10.png" width="100%"/></center>
 <br/>
 
 ### 그리고 two() 함수의 결과 값을 받으려면 one() 함수도 실행시켜야 하므로 Call Stack에는 one() 함수까지 쌓이게 된다.
 <br/>
-<center><img src="./images/single%20thread_11.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/single%20thread_11.png" width="100%"/></center>
 <br/>
 
 ### one() 함수까지 들어가게 되면 결과 값 1을 리턴하고 종료되는 것을 확인할 수 있다. Call Stack에서는 종료되는 함수는 바로바로 제거 된다. Call Stack에서 사용되는 스택이라는 구조는 가장 나중에 들어온 것부터 가장 먼저 제거 되는 구조다. 그래서 가장 마지막에 호출된 one()이라는 함수가 가장 먼저 종료되고 제거되는 것을 확인할 수 있다. 
 <br/>
-<center><img src="./images/single%20thread_12.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/single%20thread_12.png" width="100%"/></center>
 <br/>
 
 ### Call Stack에서 one() 함수가 제거된 이후에 two() 함수가 one() + 1 즉, 2를 리턴하고 종료되어 Call Stack에서 제거되는 것을 확인할 수 있다.
 <br/>
-<center><img src="./images/single%20thread_13.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/single%20thread_13.png" width="100%"/></center>
 <br/>
 
 ### 그리고 three() 함수에서 two() + 1 즉, 3을 리턴하고 종료되어 Call Stack에서 제거되는 것을 확인 할 수 있다.
 <br/>
-<center><img src="./images/single%20thread_14.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/single%20thread_14.png" width="100%"/></center>
 <br/>
 
 ### 그리고 three() 함수의 반환 값인 3이 console.log에 의해 출력되고 3 역시 제거 된다.
 <br/>
-<center><img src="./images/single%20thread_15.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/single%20thread_15.png" width="100%"/></center>
 <br/>
 
 ### 그리고 console.log까지 끝났으면 더 이상 실행할 코드가 없기 때문에 Call Stack에서 Main Context까지 제거하게 되고 Main Context가 제거 되는 순간이 프로그램이 종료되는 순간이다. 또한 코드를 직접 실해하는 주체를 쓰레드라고 하는데 이 쓰레드는 하나의 Call Stack만 담당하고 Call Stack의 작동 방식대로 명령을 처리한다고 보면 되는데 자바스크립트 엔진은 Call Stack이 딱 하나 있기 때문에 그래서 자바스크립트가 싱글 쓰레드로 동작한다고 생각하면 된다.
 <br/>
-<center><img src="./images/single%20thread_16.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/single%20thread_16.png" width="100%"/></center>
 <br/>
 
 ### 자바스크립트의 비동기 작업을 위해서는 JS Eegine외에 Web APIs, Callback Queue, Event Loop들의 추가 구성 요소가 필요하다. 이 세가지 구성 요소들은 자바스크립트 엔진과 웹 브라우저간의 상호 작용 등등을 처리하기 위해 존재하는데 그 중 가장 대표적인 상호작용을 비동기 처리다. 아래 코드를 해석하자면
@@ -478,7 +478,7 @@ console.log("코드 끝");
 
 5. Call Stack으로 넘겨진 cb()함수가 실행되고 종료된 다음 제거되면 더 이상 실행될 코드가 없기 때문에 Main Context가 제거되고 프로그램은 종료하게 된다.
 <br/>
-<center><img src="./images/single%20thread_17.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/single%20thread_17.png" width="100%"/></center>
 
 ```js
 function taskA(a, b, callBack) {
@@ -530,7 +530,7 @@ console.log("코드 끝");
 # Promise - 콜백지옥에서 탈출하기
 ### 콜백지옥이란 아래처럼 연속되는 비동기 처리의 결과 값을 사용하기 위해서 콜백이 계속 깊어지는 현상을 말한다. 그리고 이런 상황을 해결하기 위해서 Promise 객체를 사용할 수 있다.
 <br/>
-<center><img src="./images/promise_1.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/promise_1.png" width="100%"/></center>
 <br/>
 
 ### 비동기 작업이 가질 수 있는 3가지 형태에 대해 알아보면 
@@ -539,7 +539,7 @@ console.log("코드 끝");
 3. Rejected(실패 - 비동기 작업이 어떤 이유로 인해 실패 했음을 의미) // Pending 상태에서 Rejected 되는 과정은 **reject
 <br/>(비동기 작업은 한번 성공하거나 실패하면 그대로 작업이 끝난다.)
 <br/>
-<center><img src="./images/promise_2.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/promise_2.png" width="100%"/></center>
 <br/>
 
 ```js
@@ -818,13 +818,13 @@ main(); // hello Async(3초 뒤에)
 ### API(application programming interface 애플리케이션 프로그래밍 인터페이스, 응용 프로그램 프로그래밍 인터페이스)는 컴퓨터나 컴퓨터 프로그램 사이의 연결이다. API를 호출 한다는 것은 다른 프로그램한테 데이터를 받기 위해 말을 건다 라고 생각하면 된다. 다시 말하면 어떤 데이터를 받기 위해서, 변환 받기 위한 목적을 가지고 있다.
 ### 그리고 API 호출은 함수의 호출과 유사하지만 가장 큰 차이점은 요청 데이터의 응답을 인터넷 연결 속도, 서버의 부하 상태 등등으로 인해 언제 받을지 확실히 알 수 없다는 것이다. 응답에 실패할 수 도 있다. 그래서 Promise 객체에 rejected 상태가 있는 것이기도 하다. 결국 API는 Promise 객체를 사용하여 비동기 호출을 해야 한다.
 <br/>
-<center><img src="./images/api_1.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/api_1.png" width="100%"/></center>
 <br/>
 아래 사이트는 개발자들을 위한 무료로 API 호출에 대한 더미 데이터를 응답해 주는 서비스를 하고 있다. Resources에서 아무 링크나 들어가면 json 형태의 데이터를 확인할 수 있다. 그리고 무료로 API를 제공하는 것을 opne API라고 부른다.
 
 [JSONPlaceholder](https://jsonplaceholder.typicode.com/)
 <br/>
-<center><img src="./images/api_2.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/api_2.png" width="100%"/></center>
 <br/>
 어떤 API에 데이터를 요청하기 위해서는 그 API의 주소를 먼저 알아야 한다.
 
@@ -849,11 +849,11 @@ getData();
 예제 1-1 결과 값
 - 아래와 같이 fetch를 통해서 API를 호출하게 되면 그 API의 결과 값을 그대로 반환 하는게 아니라 API 성공 객체 자체를 반환하기 때문에 Response객체 자체를 반환한 것을 확인할 수 있다. 예를 들어 편지를 받았다면 아직 편지의 내용이 아닌 포장 봉투를 확인한 것과 같다고 볼 수 있다.
 <br/>
-<center><img src="./images/api_3.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/api_3.png" width="100%"/></center>
 <br/>
 
 예제 1-2 결과 값
 - 편지의 내용을 확인하고 싶다면 예제 1-2처럼 코드를 작성하면 된다.
 <br/>
-<center><img src="./images/api_4.png" width="100%"/></center>
+<center><img src="./images/javascript(inflearn)/api_4.png" width="100%"/></center>
 <br/>
